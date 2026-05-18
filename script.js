@@ -39,6 +39,8 @@ const activeHand = document.querySelector("#activeHand");
 const undoButton = document.querySelector("#undoButton");
 const clearButton = document.querySelector("#clearButton");
 const checkButton = document.querySelector("#checkButton");
+const showAnswerButton = document.querySelector("#showAnswerButton");
+const returnPracticeButton = document.querySelector("#returnPracticeButton");
 const answerStatus = document.querySelector("#answerStatus");
 const scoreText = document.querySelector("#scoreText");
 const resultHistory = document.querySelector("#resultHistory");
@@ -46,6 +48,8 @@ const resultHistory = document.querySelector("#resultHistory");
 let selectedColor = colors[0];
 let activeIndex = 0;
 let isPointerPainting = false;
+let isViewingAnswer = false;
+let practiceSnapshot = null;
 const history = [];
 
 const savedGrid = loadGrid();
@@ -83,7 +87,7 @@ function colorByKey(key) {
   return colors.find((color) => color.key === key) || colors[0];
 }
 
-function applyCellColor(cell, colorKey, remember = true) {
+function applyCellColor(cell, colorKey, remember = true, persist = true) {
   const previous = cell.dataset.color || "";
   if (previous === colorKey) return;
 
@@ -96,14 +100,16 @@ function applyCellColor(cell, colorKey, remember = true) {
   cell.dataset.color = color.key;
   cell.dataset.result = "";
   cell.style.setProperty("--cell-bg", color.value);
-  saveGrid();
+  if (persist) saveGrid();
 }
 
 function paintActive() {
+  if (isViewingAnswer) return;
   applyCellColor(cells[activeIndex], selectedColor.key);
 }
 
 function eraseActive() {
+  if (isViewingAnswer) return;
   applyCellColor(cells[activeIndex], defaultColorKey);
 }
 
@@ -176,6 +182,7 @@ function createGrid() {
         paintActive();
       });
       cell.addEventListener("pointerdown", (event) => {
+        if (isViewingAnswer) return;
         event.preventDefault();
         isPointerPainting = true;
         setActive(index);
@@ -201,19 +208,24 @@ function createGrid() {
 }
 
 function undo() {
+  if (isViewingAnswer) return;
   const last = history.pop();
   if (!last) return;
   applyCellColor(cells[last.index], last.previous || defaultColorKey, false);
 }
 
 function clearGrid() {
+  if (isViewingAnswer) return;
   history.push(...cells.map((cell, index) => ({ index, previous: cell.dataset.color || defaultColorKey })));
   cells.forEach((cell) => applyCellColor(cell, defaultColorKey, false));
   saveGrid();
 }
 
 function updateAnswerStatus() {
-  answerStatus.textContent = "固定";
+  answerStatus.textContent = isViewingAnswer ? "表示中" : "画像の答え";
+  showAnswerButton.disabled = isViewingAnswer;
+  returnPracticeButton.disabled = !isViewingAnswer;
+  rangeGrid.classList.toggle("is-answer-mode", isViewingAnswer);
 }
 
 function renderResults() {
@@ -230,6 +242,8 @@ function renderResults() {
 }
 
 function checkAnswer() {
+  if (isViewingAnswer) returnPractice();
+
   const grid = currentGrid();
   const correct = grid.reduce((count, color, index) => {
     const isCorrect = color === answerGrid[index];
@@ -248,6 +262,31 @@ function checkAnswer() {
   localStorage.setItem(resultsKey, JSON.stringify(savedResults));
   scoreText.textContent = `正解率 ${accuracy}%（${correct}/${cells.length}）を保存しました。`;
   renderResults();
+}
+
+function paintGrid(colorsToPaint, persist = false) {
+  colorsToPaint.forEach((colorKey, index) => {
+    applyCellColor(cells[index], colorKey || defaultColorKey, false, persist);
+  });
+  if (persist) saveGrid();
+}
+
+function showAnswer() {
+  if (isViewingAnswer) return;
+  practiceSnapshot = currentGrid();
+  isViewingAnswer = true;
+  paintGrid(answerGrid, false);
+  scoreText.textContent = "答えを表示中です。練習データは保存していません。";
+  updateAnswerStatus();
+}
+
+function returnPractice() {
+  if (!isViewingAnswer) return;
+  isViewingAnswer = false;
+  paintGrid(practiceSnapshot || loadGrid(), false);
+  practiceSnapshot = null;
+  scoreText.textContent = "自分の回答に戻りました。続けて塗るか、答え合わせできます。";
+  updateAnswerStatus();
 }
 
 document.addEventListener("keydown", (event) => {
@@ -280,6 +319,8 @@ document.addEventListener("keydown", (event) => {
 undoButton.addEventListener("click", undo);
 clearButton.addEventListener("click", clearGrid);
 checkButton.addEventListener("click", checkAnswer);
+showAnswerButton.addEventListener("click", showAnswer);
+returnPracticeButton.addEventListener("click", returnPractice);
 
 createPalette();
 createGrid();

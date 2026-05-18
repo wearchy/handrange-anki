@@ -12,10 +12,25 @@ const colors = [
   { key: "gray", label: "フォールド", value: "#909090" },
 ];
 
-const storageKey = "handrange-paint-grid-v1";
-const answerKey = "handrange-paint-answer-v1";
+const storageKey = "handrange-paint-grid-v2";
 const resultsKey = "handrange-paint-results-v1";
 const defaultColorKey = "gray";
+const answerRows = [
+  ["blueDark", "blueDark", "red", "red", "red", "green", "green", "green", "green", "green", "green", "green", "green"],
+  ["blueDark", "blueDark", "red", "yellow", "green", "green", "white", "white", "white", "white", "white", "white", "white"],
+  ["red", "yellow", "blueDark", "yellow", "green", "cyan", "white", "white", "white", "purple", "purple", "purple", "purple"],
+  ["yellow", "green", "cyan", "red", "yellow", "cyan", "white", "white", "purple", "pink", "pink", "pink", "pink"],
+  ["green", "cyan", "white", "cyan", "red", "green", "cyan", "purple", "pink", "pink", "pink", "pink", "gray"],
+  ["cyan", "white", "white", "white", "white", "red", "cyan", "white", "purple", "pink", "gray", "gray", "gray"],
+  ["white", "pink", "pink", "pink", "white", "purple", "yellow", "white", "purple", "pink", "gray", "gray", "gray"],
+  ["white", "pink", "pink", "gray", "gray", "pink", "pink", "yellow", "white", "purple", "pink", "gray", "gray"],
+  ["purple", "pink", "gray", "gray", "gray", "gray", "gray", "gray", "green", "white", "purple", "pink", "gray"],
+  ["pink", "pink", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "green", "purple", "pink", "gray"],
+  ["pink", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "cyan", "pink", "gray"],
+  ["pink", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "cyan", "gray"],
+  ["pink", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "gray", "cyan"],
+];
+const answerGrid = answerRows.flat();
 const palette = document.querySelector("#palette");
 const rangeGrid = document.querySelector("#rangeGrid");
 const currentSwatch = document.querySelector("#currentSwatch");
@@ -24,7 +39,6 @@ const activeHand = document.querySelector("#activeHand");
 const undoButton = document.querySelector("#undoButton");
 const clearButton = document.querySelector("#clearButton");
 const checkButton = document.querySelector("#checkButton");
-const saveAnswerButton = document.querySelector("#saveAnswerButton");
 const answerStatus = document.querySelector("#answerStatus");
 const scoreText = document.querySelector("#scoreText");
 const resultHistory = document.querySelector("#resultHistory");
@@ -35,7 +49,6 @@ let isPointerPainting = false;
 const history = [];
 
 const savedGrid = loadGrid();
-let savedAnswer = loadArray(answerKey);
 let savedResults = loadArray(resultsKey);
 const cells = [];
 
@@ -81,6 +94,7 @@ function applyCellColor(cell, colorKey, remember = true) {
 
   const color = colorByKey(colorKey);
   cell.dataset.color = color.key;
+  cell.dataset.result = "";
   cell.style.setProperty("--cell-bg", color.value);
   saveGrid();
 }
@@ -199,9 +213,7 @@ function clearGrid() {
 }
 
 function updateAnswerStatus() {
-  const isRegistered = savedAnswer.length === cells.length;
-  answerStatus.textContent = isRegistered ? "登録済み" : "未登録";
-  checkButton.disabled = !isRegistered;
+  answerStatus.textContent = "固定";
 }
 
 function renderResults() {
@@ -217,21 +229,13 @@ function renderResults() {
   });
 }
 
-function saveAnswer() {
-  savedAnswer = currentGrid();
-  localStorage.setItem(answerKey, JSON.stringify(savedAnswer));
-  updateAnswerStatus();
-  scoreText.textContent = "答えを保存しました。練習用に表を塗り直してから答え合わせできます。";
-}
-
 function checkAnswer() {
-  if (savedAnswer.length !== cells.length) {
-    scoreText.textContent = "先に「今の表を答えにする」で答えを登録してください。";
-    return;
-  }
-
   const grid = currentGrid();
-  const correct = grid.reduce((count, color, index) => count + Number(color === savedAnswer[index]), 0);
+  const correct = grid.reduce((count, color, index) => {
+    const isCorrect = color === answerGrid[index];
+    cells[index].dataset.result = isCorrect ? "correct" : "wrong";
+    return count + Number(isCorrect);
+  }, 0);
   const accuracy = Math.round((correct / cells.length) * 1000) / 10;
   const result = {
     checkedAt: new Date().toISOString(),
@@ -275,7 +279,6 @@ document.addEventListener("keydown", (event) => {
 
 undoButton.addEventListener("click", undo);
 clearButton.addEventListener("click", clearGrid);
-saveAnswerButton.addEventListener("click", saveAnswer);
 checkButton.addEventListener("click", checkAnswer);
 
 createPalette();

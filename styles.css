@@ -354,6 +354,14 @@ h2 {
   outline-offset: -4px;
 }
 
+.cell[data-result="wrong"] {
+  box-shadow: inset 0 0 0 4px #ff4d6d;
+}
+
+.cell[data-result="correct"] {
+  box-shadow: inset 0 0 0 3px rgba(22, 163, 74, 0.45);
+}
+
 .cell:focus-visible,
 .palette-option:focus-visible,
 .actions button:focus-visible {

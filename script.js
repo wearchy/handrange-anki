@@ -15,6 +15,7 @@ const colors = [
 const storageKey = "handrange-paint-grid-v1";
 const answerKey = "handrange-paint-answer-v1";
 const resultsKey = "handrange-paint-results-v1";
+const defaultColorKey = "gray";
 const palette = document.querySelector("#palette");
 const rangeGrid = document.querySelector("#rangeGrid");
 const currentSwatch = document.querySelector("#currentSwatch");
@@ -62,7 +63,7 @@ function saveGrid() {
 }
 
 function currentGrid() {
-  return cells.map((cell) => cell.dataset.color || "white");
+  return cells.map((cell) => cell.dataset.color || defaultColorKey);
 }
 
 function colorByKey(key) {
@@ -89,7 +90,7 @@ function paintActive() {
 }
 
 function eraseActive() {
-  applyCellColor(cells[activeIndex], "white");
+  applyCellColor(cells[activeIndex], defaultColorKey);
 }
 
 function setActive(index) {
@@ -152,7 +153,10 @@ function createGrid() {
       cell.dataset.hand = hand;
       cell.setAttribute("role", "gridcell");
       cell.setAttribute("aria-label", hand);
-      cell.textContent = hand;
+      const label = document.createElement("span");
+      label.className = "cell-label";
+      label.textContent = hand;
+      cell.append(label);
       cell.addEventListener("click", () => {
         setActive(index);
         paintActive();
@@ -173,7 +177,7 @@ function createGrid() {
       });
       cells.push(cell);
       rangeGrid.append(cell);
-      applyCellColor(cell, savedGrid[index] || "white", false);
+      applyCellColor(cell, savedGrid[index] || defaultColorKey, false);
     });
   });
 
@@ -185,12 +189,12 @@ function createGrid() {
 function undo() {
   const last = history.pop();
   if (!last) return;
-  applyCellColor(cells[last.index], last.previous || "white", false);
+  applyCellColor(cells[last.index], last.previous || defaultColorKey, false);
 }
 
 function clearGrid() {
-  history.push(...cells.map((cell, index) => ({ index, previous: cell.dataset.color || "white" })));
-  cells.forEach((cell) => applyCellColor(cell, "white", false));
+  history.push(...cells.map((cell, index) => ({ index, previous: cell.dataset.color || defaultColorKey })));
+  cells.forEach((cell) => applyCellColor(cell, defaultColorKey, false));
   saveGrid();
 }
 

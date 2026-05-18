@@ -315,12 +315,20 @@ h2 {
   border: 1px solid rgba(20, 24, 28, 0.58);
   background: var(--cell-bg, #fff);
   color: var(--cell-ink, #20252b);
-  font-size: clamp(1rem, 3vw, 2.1rem);
-  font-weight: 950;
+  font-size: clamp(0.92rem, 2.45vw, 1.72rem);
+  font-weight: 900;
   line-height: 1;
   letter-spacing: 0;
+  white-space: nowrap;
   user-select: none;
   cursor: crosshair;
+}
+
+.cell-label {
+  display: inline-block;
+  max-width: 100%;
+  transform: scaleX(0.9);
+  transform-origin: center;
 }
 
 .cell[data-color="blueDark"],
@@ -388,7 +396,7 @@ h2 {
   }
 
   .cell {
-    font-size: clamp(0.72rem, 5vw, 1.55rem);
+    font-size: clamp(0.66rem, 4.3vw, 1.22rem);
   }
 }
 

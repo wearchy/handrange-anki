@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Handrange Paint</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="toolbar" aria-label="色選択">
+        <div class="brand-block">
+          <p class="eyebrow">Tournament Range</p>
+          <h1>Handrange Paint</h1>
+        </div>
+
+        <section class="palette-panel" aria-labelledby="palette-title">
+          <div class="panel-title-row">
+            <h2 id="palette-title">左で色を選ぶ</h2>
+            <span class="shortcut">1-9</span>
+          </div>
+          <div id="palette" class="palette" role="listbox" aria-label="レンジ色"></div>
+        </section>
+
+        <section class="status-panel" aria-live="polite">
+          <div class="current-color">
+            <span id="currentSwatch" class="status-swatch"></span>
+            <div>
+              <span class="caption">選択中</span>
+              <strong id="currentLabel">8人（強）</strong>
+            </div>
+          </div>
+          <div class="current-hand">
+            <span class="caption">セル</span>
+            <strong id="activeHand">AA</strong>
+          </div>
+        </section>
+
+        <section class="actions" aria-label="操作">
+          <button id="undoButton" type="button">Undo</button>
+          <button id="clearButton" type="button">Clear</button>
+        </section>
+
+        <section class="quiz-panel" aria-labelledby="quiz-title">
+          <div class="panel-title-row">
+            <h2 id="quiz-title">答え合わせ</h2>
+            <span id="answerStatus" class="shortcut">未登録</span>
+          </div>
+          <div class="quiz-actions">
+            <button id="checkButton" type="button">答え合わせ</button>
+            <button id="saveAnswerButton" type="button">今の表を答えにする</button>
+          </div>
+          <p id="scoreText" class="score-text">答えを登録すると正解率を保存できます。</p>
+          <ol id="resultHistory" class="result-history" aria-label="答え合わせ履歴"></ol>
+        </section>
+      </aside>
+
+      <section class="range-area" aria-label="ハンドレンジ表">
+        <div class="range-topbar">
+          <div>
+            <p class="eyebrow">Right Side</p>
+            <h2>スペースで色を決定</h2>
+          </div>
+          <div class="key-hints" aria-label="キーボード操作">
+            <span>矢印: 移動</span>
+            <span>Space: 塗る</span>
+            <span>E: 消す</span>
+          </div>
+        </div>
+        <div id="rangeGrid" class="range-grid" role="grid" aria-label="ポーカーハンドレンジ"></div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

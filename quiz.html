@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Handrange 20問一答</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="quiz-shell">
+      <aside class="toolbar" aria-label="一問一答メニュー">
+        <div class="brand-block">
+          <p class="eyebrow">20 Question Drill</p>
+          <h1>一問一答</h1>
+          <a class="mode-link" href="index.html">レンジ表へ</a>
+        </div>
+
+        <section class="status-panel" aria-live="polite">
+          <div class="current-hand">
+            <span class="caption">進捗</span>
+            <strong id="quizProgress">1 / 20</strong>
+          </div>
+          <div class="current-hand">
+            <span class="caption">正解</span>
+            <strong id="quizScore">0</strong>
+          </div>
+        </section>
+
+        <section class="quiz-panel">
+          <div class="panel-title-row">
+            <h2>履歴</h2>
+            <span class="shortcut">保存</span>
+          </div>
+          <ol id="quizHistory" class="result-history" aria-label="一問一答履歴"></ol>
+        </section>
+      </aside>
+
+      <section class="flashcard-area" aria-label="20問一答">
+        <div class="range-topbar">
+          <div>
+            <p class="eyebrow">Pick The Correct Color</p>
+            <h2>このハンドの色は？</h2>
+          </div>
+        </div>
+
+        <div class="flashcard">
+          <strong id="quizHand" class="quiz-hand">AA</strong>
+        </div>
+
+        <div id="quizAnswers" class="quiz-answer-grid" aria-label="回答選択"></div>
+        <p id="quizFeedback" class="quiz-feedback" aria-live="polite"></p>
+
+        <div class="quiz-controls">
+          <button id="nextQuestionButton" class="primary-button" type="button" disabled>次へ</button>
+          <button id="restartQuizButton" type="button">最初から</button>
+        </div>
+
+        <section id="quizSummary" class="quiz-summary" aria-live="polite">
+          <h2>結果</h2>
+          <p id="quizSummaryText" class="score-text"></p>
+          <ol id="reviewList" class="review-list" aria-label="間違えた問題"></ol>
+        </section>
+      </section>
+    </main>
+
+    <script src="quiz.js"></script>
+  </body>
+</html>
